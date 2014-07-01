@@ -37,7 +37,7 @@ pub trait ToQuaternion<S: BaseFloat> {
     fn to_quaternion(&self) -> Quaternion<S>;
 }
 
-impl<S: Copy> Array1<S> for Quaternion<S> {
+impl<S: Copy + Clone> Array1<S> for Quaternion<S> {
     #[inline]
     fn ptr<'a>(&'a self) -> &'a S { &self.s }
 
@@ -54,6 +54,15 @@ impl<S: Copy> Array1<S> for Quaternion<S> {
     fn mut_i<'a>(&'a mut self, i: uint) -> &'a mut S {
         let slice: &'a mut [S, ..4] = unsafe { mem::transmute(self) };
         &'a mut slice[i]
+    }
+
+    #[inline]
+    fn map(&mut self, op: |S| -> S) -> Quaternion<S> {
+        self.s = op(self.s);
+        self.v.x = op(self.v.x);
+        self.v.y = op(self.v.y);
+        self.v.z = op(self.v.z);
+        *self
     }
 }
 

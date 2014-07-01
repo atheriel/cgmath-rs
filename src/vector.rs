@@ -126,7 +126,7 @@ macro_rules! vec(
             pub fn ident() -> $Self<$S> { $Self::from_value(one()) }
         }
 
-        impl<S: Copy> Array1<S> for $Self<S> {
+        impl<S: Copy + Clone> Array1<S> for $Self<S> {
             #[inline]
             fn ptr<'a>(&'a self) -> &'a S { &self.x }
 
@@ -144,6 +144,9 @@ macro_rules! vec(
                 let slice: &'a mut [S, ..$n] = unsafe { mem::transmute(self) };
                 &'a mut slice[i]
             }
+
+            #[inline]
+            fn map(&mut self, op: |S| -> S) -> $Self<S> { $(self.$field = op(self.$field);)+ *self }
         }
 
         impl<S: BaseNum> Vector<S> for $Self<S> {
